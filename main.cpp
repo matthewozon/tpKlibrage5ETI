@@ -15,14 +15,16 @@ int main()
     ///simulation of the acquisition
     std::string fileNameSceneObject = "points";
     C_simulation theScene(fileNameSceneObject);
-    theScene.setRotationAndTranslation(0.0,PI/4.0,0.0,100.0,100.0, 1000.0);
-    theScene.setIntrinsecParameters(5.0, 0.01, 0.01, 256, 256);
+    theScene.setRotationAndTranslation(PI/4,PI/8.0,PI/8,100.0,100.0, 1000.0);
+    theScene.setIntrinsecParameters(5.0, 0.01, 0.01, CX, CY);
     theScene.projectOntoScreen();
     std::string fileNameSceneScreen = "pointsOntoScreen";
     theScene.saveVector(fileNameSceneScreen);
 
     ///calibration
     C_klibration theKLIB(fileNameSceneScreen);
+    theKLIB.assessParameters();
+    theKLIB.saveParameters("parameters");
     return 0;
 }
 

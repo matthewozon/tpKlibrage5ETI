@@ -12,7 +12,7 @@ class C_simulation
 {
 public:
     C_simulation(std::string fileNameSceneObject); /*loads the points of the scene in objetScene from a file*/
-
+    virtual ~C_simulation();
     //model the camera Mint & Mext
     void setRotationAndTranslation(double omega, double phi, double gamma, double dx, double dy, double dz);
     void setIntrinsecParameters(double f, double sx, double sy, double cx=0.0, double cy=0.0);
