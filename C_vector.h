@@ -42,7 +42,6 @@ template<class dataType> C_vector<dataType>::C_vector(unsigned short _N):m_N(_N)
     for(int i=0; i<m_N; i++)
             m_V[i]=0;*/
 
-    //std::cout << "create vector" << std::endl;
     m_V = NULL;
     m_V = new dataType[_N];
     if(m_V==NULL)
@@ -75,7 +74,6 @@ template<class dataType> C_vector<dataType>::C_vector(C_vector const& X)
 
 template<class dataType> C_vector<dataType>::~C_vector()
 {
-    //std::cout << "delete vector" << std::endl;
     if(m_V!=NULL)
     {
         delete m_V;

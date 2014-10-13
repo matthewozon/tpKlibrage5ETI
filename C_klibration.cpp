@@ -65,7 +65,6 @@ void C_klibration::assessParameters(void)
     //assume Ty positive at first
     beta = Ty*sqrt((*L)[0]*(*L)[0] + (*L)[1]*(*L)[1] + (*L)[2]*(*L)[2]);
     Tx = Ty * (*L)[3]/beta;
-    std::cout << "beta " << beta << std::endl,
 
     //rotation matrix
     r11 = (*L)[0]*Ty/beta; r12 = (*L)[1]*Ty/beta; r13 = (*L)[2]*Ty/beta;
@@ -74,18 +73,10 @@ void C_klibration::assessParameters(void)
     r32 = r13*r21 - r11*r23;
     r33 = r11*r22 - r12*r21;
 
-    std::cout << "r11 " << r11 << " r12 " << r12 << " 13 " << r13  << std::endl;
-    std::cout << "r21 " << r21 << " r22 " << r22 << " r23 " << r23  << std::endl;
-    std::cout << "r31 " << r31 << " r32 " << r32 << " r33 " << r33  << std::endl;
-
-
-
 
     //focal and focal ratio
     C_vector<double> * TzF2 = calculateTzAndf2();
     Tz = (*TzF2)[0];
-    std::cout << "Tz " << Tz << std::endl;
-    std::cout << "Ty " << Ty << std::endl;
     f2 = (*TzF2)[1];
     delete TzF2;
 
@@ -104,7 +95,6 @@ void C_klibration::assessParameters(void)
     beta = Ty*sqrt((*L)[0]*(*L)[0] + (*L)[1]*(*L)[1] + (*L)[2]*(*L)[2]);
     Ty=-Ty;
     Tx = Ty * (*L)[3]/beta;
-    std::cout << "beta " << beta << std::endl,
 
     //rotation matrix
     r11 = (*L)[0]*Ty/beta; r12 = (*L)[1]*Ty/beta; r13 = (*L)[2]*Ty/beta;
@@ -113,15 +103,9 @@ void C_klibration::assessParameters(void)
     r32 = r13*r21 - r11*r23;
     r33 = r11*r22 - r12*r21;
 
-    std::cout << "r11 " << r11 << " r12 " << r12 << " 13 " << r13  << std::endl;
-    std::cout << "r21 " << r21 << " r22 " << r22 << " r23 " << r23  << std::endl;
-    std::cout << "r31 " << r31 << " r32 " << r32 << " r33 " << r33  << std::endl;
-
     //focal and focal ratio
     TzF2 = calculateTzAndf2();
     Tz = (*TzF2)[0];
-    std::cout << "Tz " << Tz << std::endl;
-    std::cout << "Ty " << Ty << std::endl;
     f2 = (*TzF2)[1];
     delete TzF2;
 
@@ -129,15 +113,24 @@ void C_klibration::assessParameters(void)
     double Vx2 = CX + f2*(r11*(m_Scene.at(I))[0] + r12*(m_Scene.at(I))[1] + r13*(m_Scene.at(I))[2] + Tx)/(r31*(m_Scene.at(I))[0] + r32*(m_Scene.at(I))[1] + r33*(m_Scene.at(I))[2] + Tz);
     double D2 = ABS(Vy2-(m_Scene.at(I))[4]) + ABS(Vx2-(m_Scene.at(I))[3]);
 
-    //check which sign gives the better answer
-    std::cout << "x " << (m_Scene.at(I))[0] << " y " << (m_Scene.at(I))[1] << " z " << (m_Scene.at(I))[2] << std::endl;
-    std::cout << "u " << (m_Scene.at(I))[3] << " v " << (m_Scene.at(I))[4] << std::endl;
-    std::cout << "Vx1 " << Vx1 << " Vx2 " << Vx2 << std::endl;
-    std::cout << "Vy1 " << Vy1 << " Vy2 " << Vy2 << std::endl;
-    std::cout << "D1 " << D1 << " D2 " << D2 << std::endl;
-    if(D2>D1)
+    if(D1<D2)
     {
-        std::cout << "Ty was positive" << std::endl;
+        //back to previous configuration
+        Ty = ABS(Ty);
+        Tx = Ty * (*L)[3]/beta;
+
+        //rotation matrix
+        r11 = (*L)[0]*Ty/beta; r12 = (*L)[1]*Ty/beta; r13 = (*L)[2]*Ty/beta;
+        r21 = (*L)[4]*Ty; r22 = (*L)[5]*Ty; r23 = (*L)[6]*Ty;
+        r31 = r12*r23 - r13*r22;
+        r32 = r13*r21 - r11*r23;
+        r33 = r11*r22 - r12*r21;
+
+        //focal and focal ratio
+        TzF2 = calculateTzAndf2();
+        Tz = (*TzF2)[0];
+        f2 = (*TzF2)[1];
+        delete TzF2;
     }
 
     delete L;
@@ -146,14 +139,27 @@ void C_klibration::assessParameters(void)
 
 bool C_klibration::saveParameters(std::string fileNameParmeters)
 {
-    /*std::ofstream myfile;
-    myfile.open (fileNameParmeters.data());
-    for(unsigned int i=0 ; i<m_objetScreen.size() ; i++)
-    {
-        myfile << i << " " << m_objetScene.at(i)[0] << " " << m_objetScene.at(i)[1] << " " << m_objetScene.at(i)[2]\
-                   << " " << m_objetScreen.at(i)[0] << " " << m_objetScreen.at(i)[1] << "\n";
-    }
-    myfile.close();*/
+    std::ofstream myfile;
+    myfile.open (fileNameParmeters.data(), std::ifstream::out);
+    if(!myfile.is_open()) return false;
+
+    myfile << "Ext param : translation & rotation \n";
+    myfile << "\tTranslation: \n";
+    myfile << "(Tx, Ty, Tz) = (" << Tx << ", " << Ty << ", " << Tz  << ") mm\n";
+    myfile << "\tRotation: \n";
+    myfile << "r11 = " << r11 << "\t r12 = " << r12 << "\t r13 = " << r13 <<"\n";
+    myfile << "r21 = " << r21 << "\t r22 = " << r22 << "\t r23 = " << r23 <<"\n";
+    myfile << "r31 = " << r31 << "\t r32 = " << r32 << "\t r33 = " << r33 <<"\n";
+    myfile << "Rotation angles: \n";
+    myfile << "phi = " << -atan(r23/r33) << "\n";
+    myfile << "gamma = " << -atan(r12/r11) << "\n";
+    myfile << "omega = " << -atan(r13/(r33*cos(phi)-r23*sin(phi))) << "\n";
+    myfile << "\nInt param : f1/f2 & f2\n";
+    myfile << "beta " << beta << " mm\n";
+    myfile << "f2 " << f2 << " mm\n";
+
+
+    myfile.close();
     return true;
 }
 

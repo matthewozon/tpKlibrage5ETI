@@ -13,18 +13,18 @@
 int main()
 {
     ///simulation of the acquisition
-    std::string fileNameSceneObject = "points";
+    std::string fileNameSceneObject = "points"; //file containing the points of calibration grid expressed in object frame
     C_simulation theScene(fileNameSceneObject);
-    theScene.setRotationAndTranslation(PI/4,PI/8.0,PI/8,100.0,100.0, 1000.0);
-    theScene.setIntrinsecParameters(5.0, 0.01, 0.01, CX, CY);
-    theScene.projectOntoScreen();
-    std::string fileNameSceneScreen = "pointsOntoScreen";
-    theScene.saveVector(fileNameSceneScreen);
+    theScene.setRotationAndTranslation(PI/4,PI/8.0,PI/8,100.0,100.0, 1000.0); //Ext param: set rotation and translation from object to camera frame
+    theScene.setIntrinsecParameters(5.0, 0.01, 0.01, CX, CY); // Int param: focal, scaling factors & projection of optical center onto screen
+    theScene.projectOntoScreen(); //simulation of acuisition
+    std::string fileNameSceneScreen = "pointsOntoScreen"; //file containing points in screen frame
+    theScene.saveVector(fileNameSceneScreen);// actualy save points to file
 
     ///calibration
     C_klibration theKLIB(fileNameSceneScreen);
-    theKLIB.assessParameters();
-    theKLIB.saveParameters("parameters");
+    theKLIB.assessParameters(); //from the pairs of points in file fileNameSceneScreen, assess parameters
+    theKLIB.saveParameters("parameters"); //save parameters into parameters
     return 0;
 }
 
